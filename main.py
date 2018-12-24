@@ -23,7 +23,7 @@ def get_random_comics_num():
 
 
 def get_comics(num):
-    comics_url = "http://xkcd.com/" + str(num) + "/info.0.json"
+    comics_url = "http://xkcd.com/{}/info.0.json".format(num)
     comics_json = requests.get(comics_url).json()
     comment = comics_json["alt"]
     filename = comics_json["title"]+".png"
