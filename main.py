@@ -1,15 +1,15 @@
 import os
 import requests
-from dotenv import load_dotenv
 import random
+import io
+from dotenv import load_dotenv
 
 
 def get_posted_comics_nums():
     if not os.path.exists("posted.txt"):
         return []
     with open("posted.txt", "r") as file:
-        posted_comics = map(lambda x: int(x), file.read().split())
-    return posted_comics
+        return map(int, file.read().split())
 
 
 def get_random_comics_num():
@@ -23,12 +23,12 @@ def get_random_comics_num():
 
 
 def get_comics(num):
-    url = "http://xkcd.com/" + str(num) + "/info.0.json"
-    comic_json = requests.get(url).json()
-    comment = comic_json["alt"]
-    title = comic_json["title"]+".png"
-    img = requests.get(comic_json["img"]).content
-    return (title, img, comment)
+    comics_url = "http://xkcd.com/" + str(num) + "/info.0.json"
+    comics_json = requests.get(comics_url).json()
+    comment = comics_json["alt"]
+    filename = comics_json["title"]+".png"
+    img = requests.get(comics_json["img"]).content
+    return (filename, img, comment)
 
 
 def get_upload_url(token=None, api_version=None, group_id=None):
@@ -108,13 +108,13 @@ def main():
     group_id = os.getenv("group_id") or exit("no group id")
     upload_url = get_upload_url(token, api_version, group_id)
     comics_num = get_random_comics_num()
-    title, image, comment = get_comics(comics_num)
-    with open(title, "wb") as file:
+    filename, image, comment = get_comics(comics_num)
+    with open(filename, "wb") as file:
         file.write(image)
-    img = open(title, 'rb')
+    img = open(filename, 'rb')
     upload_response = upload_image(img, upload_url, group_id).json()
     img.close()
-    os.remove(title)
+    os.remove(filename)
     im_server = upload_response["server"]
     im_hash = upload_response["hash"]
     im = upload_response["photo"]
