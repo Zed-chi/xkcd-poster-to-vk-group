@@ -111,9 +111,8 @@ def main():
     filename, image, comment = get_comics(comics_num)
     with open(filename, "wb") as file:
         file.write(image)
-    img = open(filename, 'rb')
-    upload_response = upload_image(img, upload_url, group_id).json()
-    img.close()
+    with open(filename, "rb") as file:
+        upload_response = upload_image(file, upload_url, group_id).json()
     os.remove(filename)
     im_server = upload_response["server"]
     im_hash = upload_response["hash"]
